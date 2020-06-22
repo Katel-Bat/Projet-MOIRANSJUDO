@@ -101,10 +101,23 @@
 <script> 
     //Collection des adhérents
     let adhList = []
+
+    let todayDate = new Date()
+    let todayYear = todayDate.getFullYear() // 2020 : number
+    console.log('todayYear :')
+    console.log(todayYear)
+    let todayMonth = (todayDate.getMonth())+1 //1 à 12 (si juin alors todayMonth = 6)
+    console.log('todayMonth :')
+    console.log(todayMonth)
+    let todayDay = todayDate.getDate()
+    console.log('todayDay :')
+    console.log(todayDay)
+
+    let tableCategorie; 
     //fichier à part pour la classe
     class adherent {
 
-        constructor(_majeur, _certif, _nom, _prenom, _sexe, _dn, _etatJudo, _cat, _cours){
+        constructor(_majeur, _certif, _nom, _prenom, _sexe, _dn, _etatJudo, _cat, _cours, _ceinturePrec, _passeportJudo){
             this.majeur = _majeur;
             this.certif = _certif;
             this.nom = _nom;
@@ -114,6 +127,8 @@
             this.etatJudo = _etatJudo;
             this.cat = _cat;
             this.cours = _cours;
+            this.ceinturePrec = _ceinturePrec;
+            this.passeportJudo = _passeportJudo;
         }
     }
     //===================================================================== affichage des divers onglets =====================================================================
@@ -193,13 +208,13 @@
                             </tr>
                             <tr>
                                 <td>
-                                    Rapport avec le club de Judo : 
+                                    Avez-vous déjà été licencié à la Fédération Française de Judo ? 
                                 </td>
                                 <td>
-                                    Nouveau Judoka <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" value="1">
+                                    Oui <input type="radio" name="licenceFFJ${i+1}" id="licenceFFJ${i+1}" value="1">
                                 </td>
                                 <td>
-                                    Réinscription <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" value="0">
+                                    Non <input type="radio" name="licenceFFJ${i+1}" id="licenceFFJ${i+1}" value="0">
                                 </td>
                             </tr>
                             <tr>
@@ -207,19 +222,22 @@
                                     Ceinture précédente : 
                                 </td>
                                 <td>
-                                    <select name="ceinturePrecedente" id="ceinturePrecedente">
-                                        <option value="Blanche">Blanche</option>
-                                        <option value="BlancheJaune">Blanche/Jaune</option>
-                                        <option value="Jaune">Jaune</option>
-                                        <option value="JauneOrange">Jaune/Orange</option>
-                                        <option value="Orange">Orange</option>
-                                        <option value="OrangeVerte">Orange/Verte</option>
-                                        <option value="Verte">Verte</option>
-                                        <option value="Bleue">Bleue</option>
-                                        <option value="Marron">Marron</option>
-                                        <option value="Noire">Noire</option>
-                                        <option value="RougeBlanche">Rouge/Blanche</option>
-                                        <option value="Rouge">Rouge</option>
+                                    <select name="ceinturePrecedente" id="ceinturePrecedente${i+1}">
+                                        <option value="0">-Inconnue-</option>
+                                        <option value="1">Blanche</option>
+                                        <option value="2">Blanche 1 liseré</option>
+                                        <option value="3">Blanche 2 liserés</option>
+                                        <option value="4">Blanche/Jaune</option>
+                                        <option value="5">Jaune</option>
+                                        <option value="6">Jaune/Orange</option>
+                                        <option value="7">Orange</option>
+                                        <option value="8">Orange/Verte</option>
+                                        <option value="9">Verte</option>
+                                        <option value="10">Verte/Bleue</option>
+                                        <option value="11">Bleue</option>
+                                        <option value="12">Bleue/Marron</option>
+                                        <option value="13">Marron</option>
+                                        <option value="14">Noire</option>
                                     </select>
                                 </td>
                             </tr>
@@ -232,11 +250,6 @@
                                 </td>
                                 <td>
                                     Non <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="0">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div id="attestMineur${i+1}"></div>
                                 </td>
                             </tr>
                             <tr>
@@ -265,7 +278,15 @@
                             </tr>
                             <tr>
                                 <td>
-                                    Cours : 
+                                    Catégorie : 
+                                </td>
+                                <td>
+                                    <input type="text" id="categorie${i+1}" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="Cours"><div>
                                 </td>
                                 <td>
                                     <div id="contenuCours${i+1}"></div>
@@ -276,15 +297,19 @@
                         <input type="button" onclick="parseForms(${i+1})"  value="bouton parse"/>
                     </fieldset>
                 </form>
+                <div id="attestMineur${i+1}"></div>
             </div>
             `
         }
     }
-    function generateCours(select, ic){
-        let div_cours = document.getElementById(`contenuCours${ic}`)
+    function generateCours(val_i){
+        let categorie = document.getElementById(`categorie${val_i}`);
+        // Pre judo / mini poussin / poussin / benjamin / minime / Cadet / Junior / senior / veteran
+        let div_affCours = document.getElementById("Cours");
+        div_affCours.innerHTML = `Cours :`
+        let div_cours = document.getElementById(`contenuCours${val_i}`)
         div_cours.innerHTML = ""
-        let value = select.options[select.selectedIndex].value 
-        if (value == "Prejudo") {
+        if (categorie.innerHTML == "Prejudo") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Sam10h30a11h15">Le samedi de 10h30 à 11h15</option>
@@ -292,43 +317,57 @@
                 <option value="Ven16h30à17h15">Le vendredi de 16h30 à 17h15</option>
             </select>
             `
-        }else if (value == "MiniPoussin"){
+        }else if (categorie.innerHTML == "MiniPoussin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu16h45a17h45">Le mardi et jeudi 16h45-17h45</option>
                 <option value="Mer17h30a18h30Ven17h15a18h15">Le mercredi 17h30-18h30 et vendredi 17h15-18h15</option>
             </select>
             `
-        }else if (value == "Poussin"){
+        }else if (categorie.innerHTML == "Poussin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu17h45a18h45">Le mardi et jeudi 17h45-18h45</option>
                 <option value="Mer17h30a18h30Ven17h15a18h15">Le mercredi 17h30-18h30 et vendredi 17h15-18h15</option>
             </select>
             `
-        }else if (value == "Benjamin"){
+        }else if (categorie.innerHTML == "Benjamin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Mer18h30a19h30Ven18h15a19h15">Le mercredi 18h30-19h30 et vendredi 18h15-19h15</option>
             </select>
             `
-        }else if (value == "MinimeCadetCompetition"){
+        }else if (categorie.innerHTML == "Minime"){ // CHGT
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu18h45a20h15">Le mardi et jeudi 18h45-20h15</option>
             </select>
             `
-        }else if (value == "AdulteJudoLoisir"){
+        }else if (categorie.innerHTML == "Cadet"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
-                <option value="Ven19h15a19h45">Le vendredi 19h15-19h45 accès tapis libre</option>
-                <option value="Ven19h45a21h">Le vendredi 19h45-21h cours</option>
+                <option value="MarJeu18h45a20h15">Le mardi et jeudi 18h45-20h15</option>
             </select>
             `
-        }else {
+        }else if (categorie.innerHTML == "Junior") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
-                <option value="Mer19h30a21h">Le mercredi 19h30-21h</option>
+                <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
+                <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
+            </select>
+            `
+        } else if (categorie.innerHTML == "Senior") {
+            div_cours.innerHTML=`
+            <select name="coursSelect" id="coursSelect">
+                <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
+                <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
+            </select>
+            `
+        } else if (categorie.innerHTML == "Veteran") {
+            div_cours.innerHTML=`
+            <select name="coursSelect" id="coursSelect">
+                <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
+                <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
             </select>
             `
         }
@@ -339,14 +378,21 @@
         let value = radio.value 
         if (value == 0){
             div_attest.innerHTML = `
-            <tr>
-                <td>
-                    Je soussigné représentant légal de l’enfant dont le nom est inscrit ci-dessus autorise mon 
-                    enfant à participer aux activités de Moirans Judo pour la saison 2020/2021. En cas d’urgence, j'autorise, 
-                    pour mon enfant, toute intervention médicale qui pourrait s'avérer nécessaire.<br>
-                   J'accepte <input type="checkbox" name="accepte" id="form_accepte">
-                </td>
-            </tr>
+            <form>
+                <fieldset>
+                    <legend>Attestation pour l'adhérent mineur ${val}</legend>
+                    <table>
+                        <tr>
+                            <td>
+                                Je soussigné représentant légal de l’enfant dont le nom est inscrit ci-dessus autorise mon 
+                                enfant à participer aux activités de Moirans Judo pour la saison 2020/2021. En cas d’urgence, j'autorise, 
+                                pour mon enfant, toute intervention médicale qui pourrait s'avérer nécessaire.<br>
+                            J'accepte <input type="checkbox" name="accepte" id="form_accepte">
+                            </td>
+                        </tr>
+                    </table>
+                </fieldset>
+            </form>
             `
         }
     }
@@ -369,6 +415,15 @@
     function parseForms(val_i){ 
         //Réinitialisation de la liste 
         let adhList = []
+
+        let categorie; 
+
+        let cours;
+
+        let passeportJudo;
+
+        let select = document.getElementById(`ceinturePrecedente${val_i}`);
+        let ceinturePrec = select.value
         let radioMajeur = document.getElementsByName(`majeur${val_i}`);
         let majeur;
         for (let i = 0; i < radioMajeur.length; i++) {
@@ -376,9 +431,6 @@
                 majeur = radioMajeur[i].value
             }
         }
-        console.log('majeur') 
-        console.log(majeur)
-
         let radioSexe = document.getElementsByName(`sexe${val_i}`);
         let sexe;
         for (let i = 0; i < radioSexe.length; i++) {
@@ -386,33 +438,17 @@
                 sexe = radioSexe[i].value
             }
         }
-        console.log('sexe') 
-        console.log(sexe)
-
-        let radioEtatJudo = document.getElementsByName(`reinoujudo${val_i}`);
+        let radioEtatJudo = document.getElementsByName(`licenceFFJ${val_i}`);
         let etatJudo;
         for (let i = 0; i < radioEtatJudo.length; i++) {
             if (radioEtatJudo[i].checked) {
                 etatJudo = radioEtatJudo[i].value
             }
         }
-        console.log('etatJudo') 
-        console.log(etatJudo)
         //  3è 4è et 6è valeurs d'adherent
         //Récupération de tous les objets <Form> dans une liste
         let forms = document.getElementById(`form${val_i}`).children
-        console.log(forms)
-        let todayDate = new Date()
-        let todayYear = todayDate.getFullYear() // 2020 : number
-        let todayMonth = (todayDate.getMonth())+1
-        console.log('todayMonth')
-        console.log(todayMonth)
-        let todayDay = todayDate.getDate()
-        console.log(todayDay)
-        todayYear = todayYear.toString()
-        todayMonth = todayMonth.toString()
-        todayDay = todayDay.toString()
-        let dateoftoday = todayYear + "-" + todayMonth + "-" + todayDay
+        //let dateoftoday = todayYear + "-" + todayMonth + "-" + todayDay
         for (let i = 0; i < forms.length; i++) {
             //Récupération des balises input dans le form
             let form = forms[i].getElementsByTagName("input");
@@ -420,18 +456,38 @@
             let nom = form[0].value
             let prenom = form[1].value 
             let dateNaissance = form[4].value
-            anneeNaissance = dateNaissance.substr(0,4)
+
+            let yearBirthCut = dateNaissance.substr(0,4)
+            let birthYear = parseInt(yearBirthCut)
+            let monthBirthCut = dateNaissance.substr(6,8)
+            let birthMonth = parseInt(monthBirthCut)
+            let dayBirthCut = dateNaissance.substr(8,10)
+            let birthDay = parseInt(dayBirthCut)
+
             let dateCertif = form[9].value  // récupérer l'année pour calculer : 
                                             // -3ans, questionnaire de santé
-            console.log('année mois jour certif : ') 
-            console.log(todayYear, todayMonth, todayDay)
-            console.log(nom, prenom)
-            console.log(dateNaissance) 
-            console.log(dateCertif) // juin = 06
-            console.log(dateoftoday) // juin = 6
+            let yearCertCut = dateCertif.substr(0,4);
+            let certYear = parseInt(yearCertCut)
+            let monthCertCut = dateCertif.substr(6,8)
+            let certMonth = parseInt(monthCertCut)
+            let dayCertCut = dateCertif.substr(8,10)
+            let certDay = parseInt(dayCertCut);
+            // etatJudo vaut 0 : certif requis (nouvel adh)
+            // idem si etatJudo vaut 1 et certif +3 ans (ancien adh et vieux certif)
+            // etatJudo vaut 1 et certif - 3 ans : AQS (ancien adh et certif entre 1 et 3 ans)
+            if (etatJudo == 1 && (todayYear - certYear) < 3) { // pas assez précis : date complète
+                console.log('AQS')
+                console.log(etatJudo)
+                console.log(todayYear - certYear)
+            } else {
+                console.log('go get un certif')
+                console.log(etatJudo)
+                console.log(todayYear - certYear)
+            }
+            
             //Création d'un adhérent et ajout dans la liste
             // boucle for pour plusieurs adherents ? 
-            adhList.push(new adherent(majeur, certif, nom, prenom, sexe, datenaissance, etatJudo)) // tri par ordre alhpabetique (cf console.log adhList)
+            adhList.push(new adherent(majeur, dateCertif, nom, prenom, sexe, dateNaissance, etatJudo, categorie, cours, ceinturePrec, passeportJudo)) // tri par ordre alhpabetique (cf console.log adhList)
             console.log("la liste : ")
             console.log( adhList)
         }
