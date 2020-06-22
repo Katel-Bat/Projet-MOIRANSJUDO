@@ -10,15 +10,8 @@
 <h2>Adhésion</h2>
 <p>Remplir pas à pas les diverses sections</p>
 
-<p>Récupérer les données : afficher le récapitulatif (+stocker ?)<br>
-Bouton valider à paufiner : il doit permettre d'accéder au récapitulatif à partir du dernier adhérent <br>
-Insertion du logo dans le formulaire<br>
-CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la page d'intro et du formulaire. <br>
-
 <div class="tab">
   <button class="tablinks" onclick="openSection(event, 'Resp')" id="defaultOpen">Responsable Légal</button>
-  <div id="ongletsAdh"></div>
-  <button class="tablinks" onclick="openSection(event, 'Recap')">Récapitulatif</button>
 </div>
 
 <div id="Resp" class="tabcontent">
@@ -81,21 +74,24 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
                     </td>
                     <td>
                         <select name="adherents" id="input_adherents" onchange="generateAdh(this)">
+                            <option value="0">-Sélectionner-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4">4</option>
                             <option value="5">5</option>
                         </select>
-                        <input type="button" onclick="parseForms()" value="bouton mdr"/>
+                        <input type="button" onclick="parseForms()" value="bouton inutile pour le moment"/>
                     </td>
                 </tr>
             </table>
         </fieldset>
     </form>
 </div>
+<div id="ongletsAdh"></div>
 <div id="contenuAdh">
 </div>
+<button class="tablinks" onclick="openSection(event, 'Recap')">Récapitulatif</button>
 <div id="Recap" class="tabcontent">
     <h3>Récapitulatif</h3>
     <p>SAISIE ...</p>
@@ -125,20 +121,20 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
     document.getElementById("defaultOpen").click();
 
     function openSection(evt, ongletSelection) {
-            // L'id de ce qui doit être affiché doit correspondre à ongletSelection dans les div
-            var i, tabcontent, tablinks;  
-            // tablinks : les onglets à cliquer pour l'affichage 
-            // tabcontent : le contenu de l'affichage après le clic
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none"; 
-            }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(ongletSelection).style.display = "block";
-            evt.currentTarget.className += " active";
+        // L'id de ce qui doit être affiché doit correspondre à ongletSelection dans les div
+        var i, tabcontent, tablinks;  
+        // tablinks : les onglets à cliquer pour l'affichage 
+        // tabcontent : le contenu de l'affichage après le clic
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none"; 
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(ongletSelection).style.display = "block";
+        evt.currentTarget.className += " active";
     }
     // =========================================================== génération des sections pour les adhérents ========================================================================
     // Récupère la valeur du select dans la section responsable légal et en fonction créée en HTML les onglets, et les formulaires en nombre adaptés
@@ -152,55 +148,15 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         for (let i = 0; i < value; i++) {
             // onglets
             div_adh.innerHTML += `
-            <button class="tablinks" onclick="openSection(event, 'Adh${i+1}')">Adhérent ${i+1}</button>
+            <button class="tablinks" onclick="openSection(event, 'Adh${i+1}')">Adhérent ${i+1}</button><br>
             `
             // formulaires
             div_aff.innerHTML +=`
             <div id="Adh${i+1}" class="tabcontent" style="display : none;">
-                <form id="form" method="post" action="getData.php"  id="formAdh">
+                <form id="form${i+1}" method="post" action="getData.php"  id="formAdh">
                     <fieldset>
                         <legend>Adhérent ${i+1}</legend>
                         <table>
-                            <tr>
-                                <td>
-                                    L'adhérent est majeur :
-                                </td>
-                                <td>
-                                    Oui <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="1">
-                                </td>
-                                <td>
-                                    Non <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="0">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div id="attestMineur${i+1}"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Certificat médical : 
-                                </td>
-                                <td>
-                                    De moins d'1 an : <input type="radio" name="certif${i+1}" id="certif${i+1}" value="Moins1an">
-                                </td>
-                                <td>
-                                    Entre 1 et 2 ans : <input type="radio" name="certif${i+1}" id="certif${i+1}" onclick="generateCertif(this, ${i+1})" value="Entre1et2ans">
-                                </td>
-                                <td>
-                                    Entre 2 et 3 ans : <input type="radio" name="certif${i+1}" id="certif${i+1}" onclick="generateCertif(this, ${i+1})" value="Entre2et3ans">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <p>Vous devrez amener votre certificat médical au site physique du club, sans quoi votre inscription ne pourra être finalisée.<p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div id="certificat${i+1}"></div>
-                                </td>
-                            </tr>
                             <tr>
                                 <td>
                                     Nom :
@@ -219,16 +175,13 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
                             </tr>
                             <tr>
                                 <td>
-                                    Femme :
+                                    Sexe : 
                                 </td>
                                 <td>
-                                    <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="0">
+                                    Femme <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="0">
                                 </td>
                                 <td>
-                                    Homme :
-                                </td>
-                                <td>
-                                    <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="1">
+                                    Homme <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="1">
                                 </td>
                             <tr>
                                 <td>
@@ -240,37 +193,74 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
                             </tr>
                             <tr>
                                 <td>
-                                    Nouveau Judoka :
+                                    Rapport avec le club de Judo : 
                                 </td>
                                 <td>
-                                    <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" onclick="generateCeinture(this, ${i+1})" value="1">
+                                    Nouveau Judoka <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" value="1">
                                 </td>
                                 <td>
-                                    Réinscription : 
-                                </td>
-                                <td>
-                                    <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" onclick="generateCeinture(this, ${i+1})" value="0">
+                                    Réinscription <input type="radio" name="reinoujudo${i+1}" id="reinoujudo${i+1}" value="0">
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <div id="ceinturePrec${i+1}"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Catégorie : 
+                                    Ceinture précédente : 
                                 </td>
                                 <td>
-                                    <select name="categorie${i+1}" id="categorie${i+1}" onchange="generateCours(this, ${i+1}), test(this, ${i+1})">
-                                        <option value="Prejudo">Pré Judo</option>
-                                        <option value="MiniPoussin">Mini Poussin</option>
-                                        <option value="Poussin">Poussin</option>
-                                        <option value="Benjamin">Benjamin</option>
-                                        <option value="MinimeCadetCompetition">Minime, Cadet, compétition</option>
-                                        <option value="AdulteJudoLoisir">Adulte Judo Loisir</option>
-                                        <option value="CompetitionKata">compétition, Kata</option>
+                                    <select name="ceinturePrecedente" id="ceinturePrecedente">
+                                        <option value="Blanche">Blanche</option>
+                                        <option value="BlancheJaune">Blanche/Jaune</option>
+                                        <option value="Jaune">Jaune</option>
+                                        <option value="JauneOrange">Jaune/Orange</option>
+                                        <option value="Orange">Orange</option>
+                                        <option value="OrangeVerte">Orange/Verte</option>
+                                        <option value="Verte">Verte</option>
+                                        <option value="Bleue">Bleue</option>
+                                        <option value="Marron">Marron</option>
+                                        <option value="Noire">Noire</option>
+                                        <option value="RougeBlanche">Rouge/Blanche</option>
+                                        <option value="Rouge">Rouge</option>
                                     </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    L'adhérent est majeur :
+                                </td>
+                                <td>
+                                    Oui <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="1">
+                                </td>
+                                <td>
+                                    Non <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="0">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="attestMineur${i+1}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Date du certificat médical : 
+                                </td>
+                                <td>
+                                    <input type="date" name="certif${i+1}" id="certif${i+1}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="certificat${i+1}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Je dispose d'un passeport Judo: 
+                                </td>
+                                <td>
+                                    Oui <input type="radio" name="passeport${i+1}" id="passeport${i+1}" value="1">
+                                </td>
+                                <td>
+                                    Non <input type="radio" name="passeport${i+1}" id="passeport${i+1}" value="0">
                                 </td>
                             </tr>
                             <tr>
@@ -343,36 +333,6 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
             `
         }
     }
-    function generateCeinture(radio, val){
-        let div_ceint = document.getElementById(`ceinturePrec${val}`)
-        div_ceint.innerHTML = ""
-        let value = radio.value 
-        if (value == 0){
-            div_ceint.innerHTML = `
-            <tr>
-                <td>
-                    Ceinture précédente : 
-                </td>
-                <td>
-                    <select name="ceinturePrecedente" id="ceinturePrecedente">
-                        <option value="Blanche">Blanche</option>
-                        <option value="BlancheJaune">Blanche/Jaune</option>
-                        <option value="Jaune">Jaune</option>
-                        <option value="JauneOrange">Jaune/Orange</option>
-                        <option value="Orange">Orange</option>
-                        <option value="OrangeVerte">Orange/Verte</option>
-                        <option value="Verte">Verte</option>
-                        <option value="Bleue">Bleue</option>
-                        <option value="Marron">Marron</option>
-                        <option value="Noire">Noire</option>
-                        <option value="RougeBlanche">Rouge/Blanche</option>
-                        <option value="Rouge">Rouge</option>
-                    </select>
-                </td>
-            </tr>
-            `
-        }
-    }
     function generateAttest(radio, val){
         let div_attest=document.getElementById(`attestMineur${val}`)
         div_attest.innerHTML = ""
@@ -387,17 +347,6 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
                    J'accepte <input type="checkbox" name="accepte" id="form_accepte">
                 </td>
             </tr>
-            `
-        }
-    }
-    function generateCertif(radio, val){
-        let div_cert = document.getElementById(`certificat${val}`)
-        div_cert.innerHTML = ""
-        let value = radio.value 
-        if (value == "Entre1et2ans" || value == "Entre2et3ans") {
-            alert(`test<br>test1`)
-            div_cert.innerHTML=`
-                J'atteste avoir répondu par la négative à toutes les questions du questionnaire de santé : <input type="checkbox" name="questionnairesanténeg">
             `
         }
     }
@@ -416,13 +365,10 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         - select cours
     */
 
-
     // for i = 0; i<nbadh; i++  // + verif ? 
     function parseForms(val_i){ 
         //Réinitialisation de la liste 
         let adhList = []
-        // merge les radios si possible
-        // 1ère valeur d'adherent
         let radioMajeur = document.getElementsByName(`majeur${val_i}`);
         let majeur;
         for (let i = 0; i < radioMajeur.length; i++) {
@@ -432,17 +378,7 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         }
         console.log('majeur') 
         console.log(majeur)
-        // 2ème valeur d'adherent
-        let radioCertif = document.getElementsByName(`certif${val_i}`);
-        let certif;
-        for (let i = 0; i < radioCertif.length; i++) {
-            if (radioCertif[i].checked) {
-                certif = radioCertif[i].value
-            }
-        }
-        console.log('certif') 
-        console.log(certif)
-        // 5è valeur d'adherent
+
         let radioSexe = document.getElementsByName(`sexe${val_i}`);
         let sexe;
         for (let i = 0; i < radioSexe.length; i++) {
@@ -452,7 +388,7 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         }
         console.log('sexe') 
         console.log(sexe)
-        // 7è valeur d'adherent
+
         let radioEtatJudo = document.getElementsByName(`reinoujudo${val_i}`);
         let etatJudo;
         for (let i = 0; i < radioEtatJudo.length; i++) {
@@ -464,17 +400,35 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         console.log(etatJudo)
         //  3è 4è et 6è valeurs d'adherent
         //Récupération de tous les objets <Form> dans une liste
-        let forms = document.getElementById(`form`).children
+        let forms = document.getElementById(`form${val_i}`).children
         console.log(forms)
+        let todayDate = new Date()
+        let todayYear = todayDate.getFullYear() // 2020 : number
+        let todayMonth = (todayDate.getMonth())+1
+        console.log('todayMonth')
+        console.log(todayMonth)
+        let todayDay = todayDate.getDate()
+        console.log(todayDay)
+        todayYear = todayYear.toString()
+        todayMonth = todayMonth.toString()
+        todayDay = todayDay.toString()
+        let dateoftoday = todayYear + "-" + todayMonth + "-" + todayDay
         for (let i = 0; i < forms.length; i++) {
             //Récupération des balises input dans le form
             let form = forms[i].getElementsByTagName("input");
             // Récupération des données contenues dans les input
-            let nom = form[5].value // utile
-            let prenom = form[6].value // utile
-            let datenaissance = form[9].value // utile
+            let nom = form[0].value
+            let prenom = form[1].value 
+            let dateNaissance = form[4].value
+            anneeNaissance = dateNaissance.substr(0,4)
+            let dateCertif = form[9].value  // récupérer l'année pour calculer : 
+                                            // -3ans, questionnaire de santé
+            console.log('année mois jour certif : ') 
+            console.log(todayYear, todayMonth, todayDay)
             console.log(nom, prenom)
-            console.log(datenaissance) 
+            console.log(dateNaissance) 
+            console.log(dateCertif) // juin = 06
+            console.log(dateoftoday) // juin = 6
             //Création d'un adhérent et ajout dans la liste
             // boucle for pour plusieurs adherents ? 
             adhList.push(new adherent(majeur, certif, nom, prenom, sexe, datenaissance, etatJudo)) // tri par ordre alhpabetique (cf console.log adhList)
@@ -490,11 +444,30 @@ CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la 
         }));
         xhr.send("Oui")
     }
+    //Récupérer les données : afficher le récapitulatif (+stocker ?)<br>
+    // Bouton valider à paufiner : il doit permettre d'accéder au récapitulatif à partir du dernier adhérent <br>
+    // Insertion du logo dans le formulaire<br>
+    // CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la page d'intro et du formulaire. <br>
 
-    function test(selectcat, val_i){ //récup catégorie ( la value du select, pas réussi dans parseForms)
-        let selectValue = selectcat.options[selectcat.selectedIndex].value;
-        console.log(`categorie${val_i}`)
-        console.log(selectValue)
-    }
-    </script>
+
+    /*                           
+    <tr>
+        <td>
+            Catégorie : 
+        </td>
+        <td>
+            <select name="categorie${i+1}" id="categorie${i+1}" onchange="generateCours(this, ${i+1}), test(this, ${i+1})">
+                <option value="Selectionner">-Sélectionner-</option>
+                <option value="Prejudo">Pré Judo</option>
+                <option value="MiniPoussin">Mini Poussin</option>
+                <option value="Poussin">Poussin</option>
+                <option value="Benjamin">Benjamin</option>
+                <option value="MinimeCadetCompetition">Minime, Cadet, compétition</option>
+                <option value="AdulteJudoLoisir">Adulte Judo Loisir</option>
+                <option value="CompetitionKata">compétition, Kata</option>
+            </select>
+        </td>
+    </tr>
+    */
+</script>
 </html>
