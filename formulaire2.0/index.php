@@ -107,16 +107,44 @@
 <script> 
     //Collection des adhérents
     let adhList = []
-    console.log(adhList)
     let todayDate = new Date()
     let todayYear = todayDate.getFullYear() // 2020 : number
-    console.log('todayYear :')
     let todayMonth = (todayDate.getMonth())+1 //1 à 12 (si juin alors todayMonth = 6)
     let todayDay = todayDate.getDate()
-    console.log('todayDay :')
-    console.log(todayDay)
 
-    let tableCategorie; 
+    let tableCategorie = [
+        { categorie : "PreJudo", age : 5,  passeport : 0 }, // element
+        { categorie : "MiniPoussin", age : 7,  passeport : 1 },
+        { categorie : "Poussin", age : 9,  passeport : 1 },
+        { categorie : "Benjamin", age : 11,  passeport : 1 },
+        { categorie : "Minime", age : 13,  passeport : 1 },
+        { categorie : "Cadet", age : 16,  passeport : 2 },
+        { categorie : "Junior", age : 19,  passeport : 2 },
+        { categorie : "Senior", age :  39,  passeport : 2 },
+        { categorie : "Veteran", age : 40,  passeport : 2 },
+    ];
+    function getCategorie(agePersonne){
+        let cat;
+        tableCategorie.forEach(element => {
+            if(cat != undefined) // s'arrête a la première bonne itération car cat est défini et le if est dans la bonne valeur
+                return;          // l'empêche de continuer a itérer
+            if (element.age >= agePersonne){ // return l'age de la catégorie la plus grande
+                cat = element.categorie;
+            }
+        });
+        return cat;
+    }
+    function getPasseport(agePersonne){
+        let passeport;
+        tableCategorie.forEach(element => {
+            if(passeport != undefined) // s'arrête a la première bonne itération car cat est défini et le if est dans la bonne valeur
+                return;          // l'empêche de continuer a itérer
+            if (element.age >= agePersonne){ // return l'age de la catégorie la plus grande
+                passeport = element.passeport;
+            }
+        });
+        return passeport;
+    }
     //fichier à part pour la classe
     class adherent {
 
@@ -198,8 +226,6 @@
                                 </td>
                                 <td>
                                     Femme <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="0">
-                                </td>
-                                <td>
                                     Homme <input type="radio" name="sexe${i+1}" id="sexe${i+1}" value="1">
                                 </td>
                             <tr>
@@ -207,7 +233,8 @@
                                     Date de naissance :
                                 </td>
                                 <td>
-                                    <input type="date" name="dn" required>
+                                    <input type="date" name="dn" id="dateNaissance${i+1}" required>
+                                    <input type="button" onclick="generateCours(${i+1}), generatePasseport(${i+1})"  value="Valider la date"/>
                                 </td>
                             </tr>
                             <tr>
@@ -216,8 +243,6 @@
                                 </td>
                                 <td>
                                     Oui <input type="radio" name="licenceFFJ${i+1}" id="licenceFFJ${i+1}" value="1">
-                                </td>
-                                <td>
                                     Non <input type="radio" name="licenceFFJ${i+1}" id="licenceFFJ${i+1}" value="0">
                                 </td>
                             </tr>
@@ -251,8 +276,6 @@
                                 </td>
                                 <td>
                                     Oui <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="1">
-                                </td>
-                                <td>
                                     Non <input type="radio" name="majeur${i+1}" id="majeur${i+1}" onclick="generateAttest(this, ${i+1})" value="0">
                                 </td>
                             </tr>
@@ -279,6 +302,14 @@
                             </tr>
                             <tr>
                                 <td>
+                                    <div id="pass"></div>
+                                </td>
+                                <td>
+                                    <div id="passeportJudo${i+1}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
                                     <div id="Cours"><div>
                                 </td>
                                 <td>
@@ -295,14 +326,51 @@
             `
         }
     }
+
+    // récupère l'année de naissance et calcule l'age de l'adhérent + retourne sa catégorie grâce à l'appel de la fonction getCategorie()  
+    function generateCategorie(val_i){
+        dateNais = document.getElementById(`dateNaissance${val_i}`).value
+        let yearNaisCut = dateNais.substr(0,4);
+        let naisYear = parseInt(yearNaisCut)
+        let ageAdh = todayYear - naisYear
+        categorie = getCategorie(ageAdh)
+        document.getElementById(`categorie${val_i}`).value = categorie;
+        return categorie; 
+    }
+    function generatePasseport(val_i){
+        dateNais = document.getElementById(`dateNaissance${val_i}`).value
+        let yearNaisCut = dateNais.substr(0,4);
+        let naisYear = parseInt(yearNaisCut)
+        let ageAdh = todayYear - naisYear
+        passeport = getPasseport(ageAdh)
+        let passeport_affichage = document.getElementById("pass")
+        passeport_affichage.innerHTML = ""
+        let passeportJudo = document.getElementById(`passeportJudo${val_i}`)
+        passeportJudo.innerHTML = ""
+        if (passeport == 1){
+            passeportJudo.innerHTML = `
+                Oui <input type="radio" name="passeport${val_i}" id="passeport${val_i}" value="1">
+                Non <input type="radio" name="passeport${val_i}" id="passeport${val_i}" value="0">
+            `
+            passeport_affichage.innerHTML = `Avez-vous un passeport jeune ?` 
+            return;
+        } else if (passeport == 2) {
+            passeportJudo.innerHTML = `
+                Oui <input type="radio" name="passeport${val_i}" id="passeport${val_i}" value="1">
+                Non <input type="radio" name="passeport${val_i}" id="passeport${val_i}" value="0">
+            `
+            passeport_affichage.innerHTML = `Avez-vous un passeport de judo adulte?` 
+            return;
+        }
+    }
+    // génère le cours en fonction de la catégorie 
     function generateCours(val_i){
-        let categorie = document.getElementById(`categorie${val_i}`);
-        // Pre judo / mini poussin / poussin / benjamin / minime / Cadet / Junior / senior / veteran
+        cat = generateCategorie(val_i)
         let div_affCours = document.getElementById("Cours");
         div_affCours.innerHTML = `Cours :`
         let div_cours = document.getElementById(`contenuCours${val_i}`)
-        div_cours.innerHTML = ""
-        if (categorie.innerHTML == "Prejudo") {
+        div_cours.innerHTML = "";
+        if (cat == "PreJudo") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Sam10h30a11h15">Le samedi de 10h30 à 11h15</option>
@@ -310,59 +378,68 @@
                 <option value="Ven16h30à17h15">Le vendredi de 16h30 à 17h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "MiniPoussin"){
+            return;
+        }else if (cat == "MiniPoussin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu16h45a17h45">Le mardi et jeudi 16h45-17h45</option>
                 <option value="Mer17h30a18h30Ven17h15a18h15">Le mercredi 17h30-18h30 et vendredi 17h15-18h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "Poussin"){
+            return;
+        }else if (cat == "Poussin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu17h45a18h45">Le mardi et jeudi 17h45-18h45</option>
                 <option value="Mer17h30a18h30Ven17h15a18h15">Le mercredi 17h30-18h30 et vendredi 17h15-18h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "Benjamin"){
+            return;
+        }else if (cat == "Benjamin"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Mer18h30a19h30Ven18h15a19h15">Le mercredi 18h30-19h30 et vendredi 18h15-19h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "Minime"){ // CHGT
+            return;
+        }else if (cat == "Minime"){ // CHGT
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu18h45a20h15">Le mardi et jeudi 18h45-20h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "Cadet"){
+            return;
+        }else if (cat == "Cadet"){
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="MarJeu18h45a20h15">Le mardi et jeudi 18h45-20h15</option>
             </select>
             `
-        }else if (categorie.innerHTML == "Junior") {
+            return;
+        }else if (cat == "Junior") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
                 <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
             </select>
             `
-        } else if (categorie.innerHTML == "Senior") {
+            return;
+        } else if (cat == "Senior") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
                 <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
             </select>
             `
-        } else if (categorie.innerHTML == "Veteran") {
+            return;
+        } else if (cat == "Veteran") {
             div_cours.innerHTML=`
             <select name="coursSelect" id="coursSelect">
                 <option value="Ven19h15a21h">Le vendredi 19h15-21h</option>
                 <option value="Ven19h15a21hMer19h30a21h">Le mercredi 19h30-21h et vendredi 19h15-21h</option>
             </select>
             `
+            return;
         }
     }
     function generateAttest(radio, val){
@@ -389,6 +466,7 @@
             `
         }
     }
+
     function generateRecap(){
         let div_recap = document.getElementById("Recap")
         div_adh.innerHTML = ""
@@ -497,30 +575,5 @@
         }));
         xhr.send("Oui")
     }
-    //Récupérer les données : afficher le récapitulatif (+stocker ?)<br>
-    // Bouton valider à paufiner : il doit permettre d'accéder au récapitulatif à partir du dernier adhérent <br>
-    // Insertion du logo dans le formulaire<br>
-    // CSS Bootstrap Bulma pour l'apparence (code couleur Moirans Judo & police) de la page d'intro et du formulaire. <br>
-
-
-    /*                           
-    <tr>
-        <td>
-            Catégorie : 
-        </td>
-        <td>
-            <select name="categorie${i+1}" id="categorie${i+1}" onchange="generateCours(this, ${i+1}), test(this, ${i+1})">
-                <option value="Selectionner">-Sélectionner-</option>
-                <option value="Prejudo">Pré Judo</option>
-                <option value="MiniPoussin">Mini Poussin</option>
-                <option value="Poussin">Poussin</option>
-                <option value="Benjamin">Benjamin</option>
-                <option value="MinimeCadetCompetition">Minime, Cadet, compétition</option>
-                <option value="AdulteJudoLoisir">Adulte Judo Loisir</option>
-                <option value="CompetitionKata">compétition, Kata</option>
-            </select>
-        </td>
-    </tr>
-    */
 </script>
 </html>
