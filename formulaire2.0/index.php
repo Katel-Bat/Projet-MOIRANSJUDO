@@ -73,7 +73,7 @@
                         Combien d'adhérent(s) souhaitez vous inscrire ?
                     </td>
                     <td>
-                        <select name="adherents" id="input_adherents" onchange="generateAdh(this)">
+                        <select name="nbadherents" id="nbadherents">
                             <option value="0">-Sélectionner-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -81,7 +81,13 @@
                             <option value="4">4</option>
                             <option value="5">5</option>
                         </select>
-                        <input type="button" onclick="parseForms()" value="bouton inutile pour le moment"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                        <input type="button" onclick="generateAdh()" value="Valider"/>
                     </td>
                 </tr>
             </table>
@@ -101,14 +107,11 @@
 <script> 
     //Collection des adhérents
     let adhList = []
-
+    console.log(adhList)
     let todayDate = new Date()
     let todayYear = todayDate.getFullYear() // 2020 : number
     console.log('todayYear :')
-    console.log(todayYear)
     let todayMonth = (todayDate.getMonth())+1 //1 à 12 (si juin alors todayMonth = 6)
-    console.log('todayMonth :')
-    console.log(todayMonth)
     let todayDay = todayDate.getDate()
     console.log('todayDay :')
     console.log(todayDay)
@@ -154,13 +157,14 @@
     // =========================================================== génération des sections pour les adhérents ========================================================================
     // Récupère la valeur du select dans la section responsable légal et en fonction créée en HTML les onglets, et les formulaires en nombre adaptés
     // Les id sont récupérables grâce à l'incrémentation ${i+1} dans les boucles for
-    function generateAdh(select){
+    function generateAdh(){
+        let select = document.getElementById('nbadherents');
+        let nbAdh = select.value
         let div_adh = document.getElementById("ongletsAdh")
         div_adh.innerHTML = ""
         let div_aff = document.getElementById("contenuAdh")
         div_aff.innerHTML = ""
-        let value = select.options[select.selectedIndex].value 
-        for (let i = 0; i < value; i++) {
+        for (let i = 0; i < nbAdh; i++) {
             // onglets
             div_adh.innerHTML += `
             <button class="tablinks" onclick="openSection(event, 'Adh${i+1}')">Adhérent ${i+1}</button><br>
@@ -263,17 +267,6 @@
                             <tr>
                                 <td>
                                     <div id="certificat${i+1}"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Je dispose d'un passeport Judo: 
-                                </td>
-                                <td>
-                                    Oui <input type="radio" name="passeport${i+1}" id="passeport${i+1}" value="1">
-                                </td>
-                                <td>
-                                    Non <input type="radio" name="passeport${i+1}" id="passeport${i+1}" value="0">
                                 </td>
                             </tr>
                             <tr>
@@ -396,6 +389,10 @@
             `
         }
     }
+    function generateRecap(){
+        let div_recap = document.getElementById("Recap")
+        div_adh.innerHTML = ""
+    }
     // =========================================================================================== stockage des éléments du formulaire =========================================
     
     /*
@@ -414,8 +411,6 @@
     // for i = 0; i<nbadh; i++  // + verif ? 
     function parseForms(val_i){ 
         //Réinitialisation de la liste 
-        let adhList = []
-
         let categorie; 
 
         let cours;
@@ -448,8 +443,10 @@
         //  3è 4è et 6è valeurs d'adherent
         //Récupération de tous les objets <Form> dans une liste
         let forms = document.getElementById(`form${val_i}`).children
-        //let dateoftoday = todayYear + "-" + todayMonth + "-" + todayDay
+        console.log('forms.length')
+        console.log(forms.length)
         for (let i = 0; i < forms.length; i++) {
+
             //Récupération des balises input dans le form
             let form = forms[i].getElementsByTagName("input");
             // Récupération des données contenues dans les input
