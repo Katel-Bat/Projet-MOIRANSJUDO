@@ -82,6 +82,17 @@ class adherent {
         this.typePasseport = _typePasseport; 
     }
 }
+class resp {
+
+    constructor(_nom, _adresse, _cp, _ville, _tel, _mail){
+        this.nom = _nom;
+        this.adresse = _adresse;
+        this.cp = _cp
+        this.ville = _ville;
+        this.tel = _tel;
+        this.mail = _mail;
+    }
+}
 //===================================================================== affichage des divers onglets =====================================================================
 // Récupérer l'élément avec l'id "defaultOpen" / la première étape du formulaire est le responsable légal donc doit être cliqué par défaut
 document.getElementById("defaultOpen").click();
@@ -120,7 +131,7 @@ function generateAdh(){
         // formulaires
         div_aff.innerHTML +=`
         <div id="Adh${i+1}" class="tabcontent" style="display : none;">
-            <form id="form${i+1}" method="post" action="getData.php"  id="formAdh">
+            <form id="form${i+1}" method="post" action="getData.php">
                 <fieldset>
                     <legend>Adhérent ${i+1}</legend>
                     <table>
@@ -222,7 +233,7 @@ function generateAdh(){
                         </tr>
                         <tr>
                             <td>
-                                <div id="pass"></div>
+                                <div id="pass${i+1}"></div>
                             </td>
                             <td>
                                 <div id="passeportJudo${i+1}"></div>
@@ -230,7 +241,7 @@ function generateAdh(){
                         </tr>
                         <tr>
                             <td>
-                                <div id="Cours"><div>
+                                <div id="Cours${i+1}"><div>
                             </td>
                             <td>
                                 <div id="contenuCours${i+1}"></div>
@@ -274,7 +285,7 @@ function generatePasseport(val_i){
     dateNais = document.getElementById(`dateNaissance${val_i}`).value
     ageAdh = getdifferenceAnnee(dateNais);
     passeport = getPasseport(ageAdh);
-    let passeport_affichage = document.getElementById("pass");
+    let passeport_affichage = document.getElementById(`pass${val_i}`);
     passeport_affichage.innerHTML = "";
     let passeportJudo = document.getElementById(`passeportJudo${val_i}`);
     passeportJudo.innerHTML = "";
@@ -295,7 +306,7 @@ function generatePasseport(val_i){
 // génère le cours en fonction de la catégorie 
 function generateCours(val_i){
     cat = generateCategorie(val_i)
-    let div_affCours = document.getElementById("Cours");
+    let div_affCours = document.getElementById(`Cours${val_i}`);
     div_affCours.innerHTML = `Cours :`
     let div_cours = document.getElementById(`contenuCours${val_i}`)
     div_cours.innerHTML = "";
@@ -388,10 +399,9 @@ function generateAttest(radio, val){
 }
 
 function generateRecap(){
-
     let select = document.getElementById('nbadherents');
     let nbAdh = select.value;
-    let adhList;
+    let adhList = [];
     let cpteur = 0;
     while ( cpteur < nbAdh){
         cpteur++
@@ -401,9 +411,21 @@ function generateRecap(){
         console.log('liste vaut :')
         console.log(adhList)
     }
-    // recup des val de adhList
     let htmlTab = document.getElementById("Recap");
-    let text =""
+    htmlTab.innerHTML = "";
+    let textResp = "";
+    let resp = parseResp();
+    console.log(resp)
+    for (let j = 0; j < resp.length; j++) {
+        textResp += `<form><fieldset><legend>Responsable Légal</legend><table><tbody>`;
+        for(elm in resp[j]){
+            textResp += `<tr><td>${elm} :</td><td> ${resp[j][elm]} </td></tr>`;
+        } 
+        textResp += `</tbody></table></fieldset></form>`; 
+    }
+    htmlTab.innerHTML += textResp;
+    // recup des val de adhList
+    let text ="";
     for (let i = 0; i < adhList.length; i++) { // 2 par ex
         text += `<form><fieldset><legend>Adhérent${i+1}</legend><table><tbody>`;
         for (key in adhList[i]) { //12
@@ -427,14 +449,14 @@ function parseForms(val_i){
     let radioEtatJudo = document.getElementsByName(`licenceFFJ${val_i}`);
     let etatJudo = getRadioValue(radioEtatJudo);
     //Récupération de tous les objets <Form> dans une liste
-    let forms = document.getElementById(`form${val_i}`).children
+    let forms = document.getElementById(`form${val_i}`).children;
     for (let i = 0; i < forms.length; i++) {
         //Récupération des balises input dans le form
         let form = forms[i].getElementsByTagName("input");
         // Récupération des données contenues dans les input
-        let nom = form[0].value
-        let prenom = form[1].value 
-        let dateNaissance = form[4].value
+        let nom = form[0].value;
+        let prenom = form[1].value;
+        let dateNaissance = form[4].value;
         let ageAdh = getdifferenceAnnee(dateNaissance);
         let passeportNbr = getPasseport(ageAdh);
         if (passeportNbr == 2){
@@ -450,13 +472,14 @@ function parseForms(val_i){
             typePasseport = "prejudo";
         }
         let categorie = getCategorie(ageAdh);
-        let dateCertif = form[9].value  // récupérer l'année pour calculer : 
+        let dateCertif = form[9].value;  // récupérer l'année pour calculer : 
                                         // -3ans, questionnaire de santé
-        let certYear = getAnnee(dateCertif)
-        let monthCertCut = dateCertif.substr(6,8)
-        let certMonth = parseInt(monthCertCut)
-        let dayCertCut = dateCertif.substr(8,10)
+        let certYear = getAnnee(dateCertif);
+        let monthCertCut = dateCertif.substr(6,8);
+        let certMonth = parseInt(monthCertCut);
+        let dayCertCut = dateCertif.substr(8,10);
         let certDay = parseInt(dayCertCut);
+
         if (etatJudo == 1 && (todayYear - certYear) < 3) { // pas assez précis : date complète
             console.log('AQS')
             console.log(etatJudo)
@@ -488,4 +511,31 @@ function parseForms(val_i){
         adherents : adhList
     }));
     xhr.send("Oui")
+}
+function parseResp(){
+    //a deplacer ensuite dans un bouton valider 
+    let forms = document.getElementById(`formResp`).children;
+    console.log(`forms longueur pour la boucle for`)
+    console.log(forms.length)
+    let listeResp = [];
+    for (let i = 0; i < forms.length; i++) {
+            //Récupération des balises input dans le form
+        let form = forms[i].getElementsByTagName("input");
+        let nom = form[0].value;
+        let adresse = form[1].value;
+        let cp = form[2].value;
+        let ville = form[3].value;
+        let tel = form[4].value;
+        let mail = form[5].value;
+        console.log(nom)
+        console.log(adresse)
+        console.log(cp)
+        console.log(ville)
+        console.log(tel)
+        console.log(mail)
+
+    listeResp.push(new resp(nom, adresse, cp, ville, tel, mail));
+    console.log(listeResp)
+    }
+    return listeResp;
 }

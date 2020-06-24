@@ -15,7 +15,7 @@
 </div>
 
 <div id="Resp" class="tabcontent">
-    <form id="formulaire" name="formulaire">
+    <form id="formResp" name="formulaire">
         <fieldset>
             <legend>Responsable Légal</legend>
             <table>
@@ -87,7 +87,7 @@
                     <td>
                     </td>
                     <td>
-                        <input type="button" onclick="generateAdh()" value="Valider"/>
+                        <input type="button" onclick="generateAdh(), parseResp()" value="Valider"/>
                     </td>
                 </tr>
             </table>
