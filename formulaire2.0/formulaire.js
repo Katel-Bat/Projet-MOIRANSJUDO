@@ -237,13 +237,27 @@ function generateAdh(){
                             </td>
                         </tr>
                     </table>
-                    <div id="btnval"><div>
+                    <div id="btnval${i+1}"><div>
                     <input type="button" onclick="openSection(event,'Adh${i+2}'), parseForms(${i+1})" value="Valider l'Adhérent ${i+1}">
                 </fieldset>
             </form>
             <div id="attestMineur${i+1}"></div>
         </div>
         `
+        let btn = document.getElementById(`btnval${i+1}`);
+        if (i+1 < nbAdh){
+            // bonton passage au suivant
+            btn.innerHTML =`<input type="button" onclick="openSection(event,'Adh${i+2}')" value="Valider l'Adhérent test ${i+1}">`;
+            console.log('btn.innerHTML i< nbAdh')
+            console.log(nbAdh)
+            console.log(i)
+            console.log(btn.innerHTML)
+        } else if (i = nbAdh ){
+            // bouton parse et passage au recap
+            btn.innerHTML = `<input type="button" onclick="generateRecap()" value="Valider l'Adhérent final ${i}">`;
+            console.log('btn.innerHTML i == nbAdh')
+            console.log(btn.innerHTML)
+        }
     } // boucle if pour générer le bon bonton si adh ou si récap ? 
 }
 // récupère l'année de naissance et calcule l'age de l'adhérent 
@@ -374,8 +388,30 @@ function generateAttest(radio, val){
 }
 
 function generateRecap(){
-    let div_recap = document.getElementById("Recap");
-    div_adh.innerHTML = "";
+
+    let select = document.getElementById('nbadherents');
+    let nbAdh = select.value;
+    let adhList;
+    let cpteur = 0;
+    while ( cpteur < nbAdh){
+        cpteur++
+        adhList = parseForms(cpteur)
+        console.log('compteur vaut :')
+        console.log(cpteur)
+        console.log('liste vaut :')
+        console.log(adhList)
+    }
+    // recup des val de adhList
+    let htmlTab = document.getElementById("Recap");
+    let text =""
+    for (let i = 0; i < adhList.length; i++) { // 2 par ex
+        text += `<form><fieldset><legend>Adhérent${i+1}</legend><table><tbody>`;
+        for (key in adhList[i]) { //12
+            text += `<tr><td>${key} : </td><td> ${adhList[i][key]} </td></tr>`;
+        }
+        text += `</tbody></table></fieldset></form>`;
+    }
+    htmlTab.innerHTML+= text;   
 }
 // =========================================================================================== stockage des éléments du formulaire =========================================
 // cours / ceinturePrec / majeur / sexe / etatJudo / nom / prenom / dateNaissance / passeportJudo / typePasseport / categorie / dateCertif 
@@ -436,24 +472,13 @@ function parseForms(val_i){
         console.log("la liste : ")
         console.log( adhList)
     }
-    // recup des val de adhList
-    let htmlTab = document.getElementById("Recap");
-    let text =""
-    for (let i = 0; i < adhList.length; i++) { // 2 par ex
-        text += `<form><fieldset><legend>Adhérent${i+1}</legend><table><tbody>`;
-        for (key in adhList[i]) { //12
-            text += `<tr><td>${key} : </td><td> ${adhList[i][key]} </td></tr>`;
-        }
-        text += `</tbody></table></fieldset></form>`;
-    }
-    htmlTab.innerHTML+= text;   
-    let nomadhs = [];
+    /*let nomadhs = [];
     for (let i = 0; i < adhList.length; i++) {
         nomadhs.push(adhList[i].nom);
     }
     console.log('nomadhs')
     console.log(nomadhs)
-
+    */
     return adhList;
     let url = "getData.php";
     let xhr = new XMLHttpRequest();
