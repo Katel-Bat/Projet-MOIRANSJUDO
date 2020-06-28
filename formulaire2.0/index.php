@@ -96,12 +96,17 @@
     </form>
 </div>
 <div id="ongletsAdh"></div>
-<div id="contenuAdh">
-</div>
-<button class="tablinks" onclick="openSection(event, 'Recap')">Récapitulatif</button>
+<div id="contenuAdh"></div>
+<button class="tablinks" onclick="openSection(event, 'Recap')">Récapitulatif</button><br>
+
 <div id="Recap" class="tabcontent">
-    <h3>Récapitulatif</h3>
-    <p>SAISIE ...</p>
+    <p>Le récapitulatif sera disponible lorsque vous aurez rempli tous les champs.</p>
+</div>
+
+<button class="tablinks" onclick="openSection(event, 'elmAmener')">Éléments à amener</button>
+
+<div id="elmAmener" class="tabcontent">
+    <p>les éléments à amener seront disponible lorsque vous aurez confirmé le récapitulatif.</p>
 </div>
 </body>
 <script src="formulaire.js"></script> 

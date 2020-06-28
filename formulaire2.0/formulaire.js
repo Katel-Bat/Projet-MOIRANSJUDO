@@ -1,5 +1,6 @@
 //Collection des adhérents
 let adhList = [];
+let elmList = [];
 //Date d'aujourd'hui séparée en année mois jour (numbers)
 let todayDate = new Date();
 let todayYear = todayDate.getFullYear();
@@ -53,35 +54,56 @@ function getAnnee(date) {
     anneeNbr = parseInt(anneeStr);
     return anneeNbr;
 }
-function getAge(val_i) {
-    let age = document.getElementById(`dateNaissance${val_i}`).value;
+function getAge(age) {
     let date = +new Date(age);
     age = ~~((Date.now() - date) / (31557600000));
     return age;
 }
 function getAgeAdh(val_i){
+    let age = document.getElementById(`dateNaissance${val_i}`).value;
     let div_attest = document.getElementById(`attestMineur${val_i}`);
-    let age = getAge(val_i)
-    if (age < 18) {
+    ageAdh = getAge(age)
+    if (ageAdh <= 3){
+        div_attest.innerHTML = "<form><fieldset><legend>Attention ! </legend><table><tbody>L'inscription au judo est réservée aux +3 ans, attendez encore un peu pour inscrire votre enfant.</tbody></table></fieldset></form>"
+    } else if (ageAdh > 3 && ageAdh < 18) {
         let test = generateAttest(val_i)
     } else {
         div_attest.innerHTML = "";
     }
 }
+// retourne la valeur selectionnée d'un bouton radio
+function getRadioValue(radio) {
+    let value;
+    for (let i = 0; i < radio.length; i++) {
+        if (radio[i].checked) {
+            value = radio[i].value
+        }
+    }
+    return value;
+}
 function getAgeCertif(val_i){
     // s'il est inscrit ou pas 
     let radioLicence = document.getElementById(`licenceFFJ${val_i}`);
-    let valueLicence = getRadioValue(radioLicence)
+    let valueLicence = radioLicence.value
+    console.log('valueLicence')
+    console.log(valueLicence)
     // et s'il a - 3 ans / -1an / +3ans // 1 inscrit 0 pas inscrit 
+    let dateCertif = document.getElementById(`certif${val_i}`).value
+    console.log(dateCertif)
+    let age = getAge(dateCertif)
+    console.log('getagecertif')
+    console.log(age)
+    let cert = "";
     let div_certif = document.getElementById(`certificat${val_i}`);
-    let age = getAge(val_i)
     if ((valueLicence == 0 && age < 1) || (valueLicence == 1 && age < 1 )){
-        //inscription ok 
-    } else if (valueLicence == 1 && 1 < age < 3 ) {
-        // AQS 
-    } else {
-        // inscription impossible : médecin requis. 
+        cert = `Le certificat est à amener.`
+    } else if (valueLicence == 1 && age >= 1 && age < 3 ) {
+        cert = `L'attestation de réponse au questionnaire de santé est à amener.`
+    } else if ((valueLicence == 1 && age >= 3) || (valueLicence == 0 && age >= 1)) {
+        cert = `L'inscription est impossible sans certificat médical.`
     }
+    div_certif.innerHTML = cert;
+    return cert;
 }
 function generatePasseport(val_i) {
     dateNais = document.getElementById(`dateNaissance${val_i}`).value
@@ -181,16 +203,6 @@ function generateCours(val_i) {
         `;
     }
 }
-// retourne la valeur selectionnée d'un bouton radio
-function getRadioValue(radio) {
-    let value;
-    for (let i = 0; i < radio.length; i++) {
-        if (radio[i].checked) {
-            value = radio[i].value
-        }
-    }
-    return value;
-}
 //fichier à part pour la classe
 class adherent {
 
@@ -218,6 +230,15 @@ class resp {
         this.ville = _ville;
         this.tel = _tel;
         this.mail = _mail;
+    }
+}
+class elmAmener {
+
+    constructor(_certificat, _passeportJudo, _kimono, _pass) {
+        this.Certificat = _certificat;
+        this.Passeport = _passeportJudo;
+        this.Kimono = _kimono;
+        this.Réduction = _pass;
     }
 }
 //===================================================================== affichage des divers onglets =====================================================================
@@ -329,22 +350,11 @@ function generateAdh() {
                         </tr>
                         <tr>
                             <td>
-                                Souhaitez-vous louer un Kimono (5€ pour la saison + 40€ de caution) :   
-                            </td>
-                            <td>
-                                Oui <input type="radio" name="kimono${i + 1}" id="kimono${i + 1}" value="1">
-                                Non <input type="radio" name="kimono${i + 1}" id="kimono${i + 1}" value="0">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
                                 Date du certificat médical : 
                             </td>
                             <td>
-                                <input type="date" name="certif${i + 1}" id="certif${i + 1}">
+                                <input type="date" name="certif${i + 1}" onchange="getAgeCertif(${i + 1})" id="certif${i + 1}">
                             </td>
-                        </tr>
-                        <tr>
                             <td>
                                 <div id="certificat${i + 1}"></div>
                             </td>
@@ -359,6 +369,14 @@ function generateAdh() {
                         </tr>
                         <tr>
                             <td>
+                                <div id="Cours${i + 1}"><div>
+                            </td>
+                            <td>
+                                <div id="contenuCours${i + 1}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <div id="pass${i + 1}"></div>
                             </td>
                             <td>
@@ -367,10 +385,21 @@ function generateAdh() {
                         </tr>
                         <tr>
                             <td>
-                                <div id="Cours${i + 1}"><div>
+                                Souhaitez-vous louer un Kimono (5€ pour la saison + 40€ de caution) :   
                             </td>
                             <td>
-                                <div id="contenuCours${i + 1}"></div>
+                                Oui <input type="radio" name="kimono${i + 1}" id="kimono${i + 1}" value="1">
+                                Non <input type="radio" name="kimono${i + 1}" id="kimono${i + 1}" value="0">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Bénéficiez vous du pass'Sport ou du pass'Région? 
+                            </td>
+                            <td>
+                                Pass'Sport (-15€) <input type="radio" name="pass${i + 1}" id="pass${i + 1}" value="2">
+                                Pass'Région (-30€) <input type="radio" name="pass${i + 1}" id="pass${i + 1}" value="1">
+                                Non <input type="radio" name="pass${i + 1}" id="pass${i + 1}" value="0">
                             </td>
                         </tr>
                     </table>
@@ -385,15 +414,9 @@ function generateAdh() {
         if (i + 1 < nbAdh) {
             // bonton passage au suivant
             btn.innerHTML = `<input type="button" onclick="openSection(event,'Adh${i + 2}')" value="Valider l'Adhérent test ${i + 1}">`;
-            console.log('btn.innerHTML i< nbAdh')
-            console.log(nbAdh)
-            console.log(i)
-            console.log(btn.innerHTML)
         } else if (i = nbAdh) {
             // bouton parse et passage au recap
-            btn.innerHTML = `<input type="button" onclick="generateRecap()" value="Valider l'Adhérent final ${i}">`;
-            console.log('btn.innerHTML i == nbAdh')
-            console.log(btn.innerHTML)
+            btn.innerHTML = `<input type="button" onclick="generateRecap(), generateElmAmener(), openSection(event, 'Recap')" value="Valider l'Adhérent final ${i}">`;
         }
     } // boucle if pour générer le bon bonton si adh ou si récap ? 
 }
@@ -422,9 +445,9 @@ function generateAttest(val) {
     `;
 }
 
-function generateRecap() {
+function getDataAdh(){
     let select = document.getElementById('nbadherents');
-    let nbAdh = select.value;
+    let nbAdh = select.value
     adhList = [];
     console.log('adhList début')
     console.log(adhList)
@@ -437,6 +460,91 @@ function generateRecap() {
         console.log('liste vaut :')
         console.log(adhList)
     }
+    return adhList;
+}
+
+function elmtsAmener(){
+    elmList = [];
+    let select = document.getElementById('nbadherents');
+    let nbAdh = select.value;
+    let cat = "";
+    let age; 
+    let passeport; 
+    let passeportJudo; 
+    let cpteur = 0;
+    let cert; 
+    while (cpteur < nbAdh) {
+        cpteur ++ 
+        age = document.getElementById(`dateNaissance${cpteur}`)
+        cat = getCategorie(age)
+        cert = getAgeCertif(cpteur)
+        if (cat != "PreJudo"){
+            passeport = document.getElementsByName(`passeport${cpteur}`)
+            passeportJudo = getRadioValue(passeport)
+            if (passeportJudo == 0){
+                passeportJudo = "Un chèque de 9€ et une photo."
+            } else {
+                passeportJudo = "Rien à amener."
+            }
+        }
+        kim = document.getElementsByName(`kimono${cpteur}`)
+        kimono = getRadioValue(kim)
+        if (kimono == 1){
+            kimono = "Un chèque de 5€ et une caution de 40€."
+        } else {
+            kimono = "Rien à amener."
+        }
+
+        passes = document.getElementsByName(`pass${cpteur}`)
+        pass = getRadioValue(passes)
+        if (pass > 0 ) {
+            if (pass == 2){
+                pass = "Un chèque caution de 15€ ou la carte pass'Sport."
+            } else if (pass == 1){
+                pass = "Un chèque caution de 30€ ou la carte pass'Région."
+            } else {
+                pass = "Rien à amener."
+            }
+        }
+        elmList.push(new elmAmener(cert, passeportJudo, kimono, pass));
+    }
+    console.log(elmList);
+    return elmList;
+    // si passeport = Non 
+    // photo + chèque de 9€
+    // si kimono = Oui 
+    // chèque de 5€ + 40€
+    // si pass'Sport = oui 
+    // chèque caution 
+    // si pass'Région = oui 
+    // chèque caution
+    // si 1 séance en tout = oui 
+    // cotisation = 145€/ adh
+    // si 2 séances en tout ou plus = oui
+    // cotisation = 205€/ adh 
+        // si 3 séances en tout = oui 
+        // 10€ réduc / adh
+        // si 4 séances en tout = oui 
+        // 20€ réduc / adh 
+        // si +4 séances en tout = oui
+        // 30€ réduc / adh
+}
+function generateElmAmener(){
+    let htmlAm = document.getElementById("elmAmener");
+    htmlAm.innerHTML = "";
+    elmList = elmtsAmener();
+    let text = "";
+    for (let j = 0; j < elmList.length; j++) {
+        text += `<form><fieldset><legend>Éléments à amener pour l'Adhérent ${j+1}</legend><table><tbody>`;
+        for (elm in elmList[j]) {
+            text += `<tr><td>${elm} :</td><td> ${elmList[j][elm]} </td></tr>`;
+        }
+        text += `</tbody></table></fieldset></form>`;
+    }
+    htmlAm.innerHTML += text;
+}
+function generateRecap() {
+    adhList = getDataAdh();
     let htmlTab = document.getElementById("Recap");
     htmlTab.innerHTML = "";
     let textResp = "";
@@ -459,7 +567,7 @@ function generateRecap() {
         }
         text += `</tbody></table></fieldset></form>`;
     }
-    htmlTab.innerHTML += text;
+    htmlTab.innerHTML += text + `<input type="button" onclick="openSection(event,'elmAmener')" value="Valider">`;
 }
 // =========================================================================================== stockage des éléments du formulaire =========================================
 // cours / ceinturePrec / majeur / sexe / etatJudo / nom / prenom / dateNaissance / passeportJudo / typePasseport / categorie / dateCertif 
@@ -468,8 +576,6 @@ function parseForms(val_i) {
     let cours = selectCours.value;
     let selectCeint = document.getElementById(`ceinturePrecedente${val_i}`);
     let ceinturePrec = selectCeint.value;
-    let radioMajeur = document.getElementsByName(`majeur${val_i}`);
-    let majeur = getRadioValue(radioMajeur);
     let radioSexe = document.getElementsByName(`sexe${val_i}`);
     let sexe = getRadioValue(radioSexe);
     let radioEtatJudo = document.getElementsByName(`licenceFFJ${val_i}`);
@@ -483,6 +589,12 @@ function parseForms(val_i) {
         let nom = form[0].value;
         let prenom = form[1].value;
         let dateNaissance = form[4].value;
+        let majeur = getAge(dateNaissance);
+        if (majeur > 18) {
+            majeur = " Oui"
+        } else {
+            majeur = " Non"
+        }
         let ageAdh = getdifferenceAnnee(dateNaissance);
         let passeportNbr = getPasseport(ageAdh);
         if (passeportNbr == 2) {
@@ -553,13 +665,6 @@ function parseResp() {
         let ville = form[3].value;
         let tel = form[4].value;
         let mail = form[5].value;
-        console.log(nom)
-        console.log(adresse)
-        console.log(cp)
-        console.log(ville)
-        console.log(tel)
-        console.log(mail)
-
         listeResp.push(new resp(nom, adresse, cp, ville, tel, mail));
         console.log(listeResp)
     }
@@ -577,7 +682,4 @@ passe port doit être renouvelé lors de l’inscription d’un cadet
 ➢   PASS’SPORT (-15€) ou chèque de caution si pas encore reçu
 ➢   PASS’REGION (-30€) ou chèque de caution si pas encore reçu
 
-=> pour le certif : 
-non inscrit : certif -1an
-incrit : certif -3 ans + AQS
 */
